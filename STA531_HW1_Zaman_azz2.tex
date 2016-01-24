@@ -1,0 +1,47 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amsthm}
+\usepackage{graphicx}
+\newcommand{\by}{\mathbf{y}}
+%opening
+\title{Sta 531 Homework 1}
+\author{Azeem Zaman, NetID: azz2}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Exercise 1}
+\subsection{Part a}
+In this section we compute the first and second derivatives of the log posterior density.  First we must find the posterior.  Note that $p(\theta) = 1_{0,1}$ and $p(y_i|\theta) \propto 1/(1+(y_i-\theta)^2)$, so
+\begin{align*}
+ p(\theta|\by) &\propto p(\theta)\prod_{i=1}^5{p(y_i|\theta)} \\
+ &\propto 1_{0,1}\prod_{i=1}^5{\frac{1}{1+(y_i-\theta)^2}}.
+\end{align*}
+Let $c$ by the normalizing constant and define $\lambda(\theta|\by)=\log{p(\theta|\by)}$. We have
+\begin{align*}
+ \lambda(\theta|\by) &= 1_{0,1}\left[\log{c}-\sum_{i=1}^5{\log(1 + (y_i - \theta)^2)}\right] \\
+ \lambda'(\theta|\by) &= (2)1_{0,1}\left[\sum_{i=1}^5\frac{y_i - \theta}{1 + (y_i - \theta)^2}\right] \\
+ \lambda''(\theta|\by) &= (2)1_{0,1}\left[\sum_{i=1}^5\frac{(y_i-\theta)^2-1}{\left[1+(y_i-\theta)^2\right]^2}\right].
+\end{align*}
+\subsection{Part b}
+Note that the mode of a density $f(x)$ is the value $x$ that maximizes $f$.  As $\log$ is a monotonically increasing function, the value of $x$ that maximizes $f$ also maximizes $\log{f}$, which may be easier to maximize.  Furthermore, constants do not affect the value of $x$ that maximizes $f$, so we can maximize $p(\theta|\by)$ by finding a $\theta$ such that $\lambda'(\theta|\by) = 0$.  We are given $\by = (-2,-1,0,1.5,2.5)$, which we can use to find a suitable $\theta$ numerically.  Using the \texttt{BBsolve} package in R, we find the posterior mode is $\hat{\theta} = -1.603$.  
+
+\subsection{Part c}
+The normal approximation is
+\begin{align*}
+ p(\theta|\by) \approx N(\hat{\theta}, [I(\theta)]^{-1}),
+\end{align*}
+where $\hat{\theta}$ is the posterior mode (found above) and $I(\theta)$ is the observed information, which in the univariate case is
+\begin{align*}
+ I(\theta) = -\lambda''(\theta|\by).
+\end{align*}
+Thus in our approximation $\mu = -1.603$ and $\sigma^2 = .693$.  
+\centering
+\includegraphics[width = \textwidth]{normapprox.pdf}
+
+
+\section{Exercise 4}
+
+\end{document}

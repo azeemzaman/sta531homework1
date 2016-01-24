@@ -1,57 +1,3 @@
-library(BB)
-library(truncnorm)
-f <- function(y, theta){
-  return((y-theta)/(1+(y-theta)^2))
-}
-
-g <- function(theta){
-  y.vec <- c(-2,-1,0,1.5,2.5)
-  return(sum(sapply(y.vec, function(y) {f(y,theta)})))
-}
-
-pos.mod <- BBoptim(1, g)$value
-
-d2.log.f <- function(y, theta){
-  return(((y-theta)^2-1)/((y-theta)^2+1)^2)
-}
-
-d2.log.g <- function(y.vec, theta){
-  return(2*sum(sapply(y.vec, function(y) {d2.log.f(y,theta)})))
-}
-y.vec <- c(-2,-1,0,1.5,2.5)
-nor.var <- -1/d2.log.g(y.vec, pos.mod)
-# dist is N(pos.mod, nor.var)
-
-# plot actual density
-seq.length = 10000
-theta.seq <- seq(from = 0,
-                 to = 1,
-                 length.out = seq.length)
-cauchy.f <- function(y, theta){
-  return((1+(y-theta)^2)^(-2))
-}
-unnorm.post <- function(y.vec, theta){
-  return(prod(sapply(y.vec, function(y) {cauchy.f(y, theta)})))
-}
-
-unnorm.den <- sapply(theta.seq, function(theta) {unnorm.post(y.vec, theta)})
-plot(theta.seq, unnorm.den)
-post.tot <- sum(unnorm.den/seq.length)
-norm.const <- 1/post.tot
-norm.post <- function(y.vec, theta){
-  norm.const*unnorm.post(y.vec, theta)
-}
-norm.den <- sapply(theta.seq, function(theta) {norm.post(y.vec, theta)})
-trun.norm.den <- dtruncnorm(theta.seq, 
-                            a = 0,
-                            b = 1,
-                            mean = pos.mod, 
-                            sd = sqrt(nor.var))
-pdf(file = "normapprox.pdf")
-matplot(theta.seq, 
-        cbind(norm.den,trun.norm.den), 
-        type = "l")
-dev.off()
 # Problem 9 code#
 
 # MLE function
@@ -88,15 +34,15 @@ computeMSE <- function(true.theta,
   post.mean.var <- var(post.mean.res)
   MLE.MSE <- (MLE.mean - true.theta)^2+MLE.var
   post.mean.MSE <- ((post.mean.mean - true.theta)^2+
-                      post.mean.var)
+                    post.mean.var)
   MLE.vals <- list("results" = MLE.res,
                    "mean" = MLE.mean,
                    "variance" = MLE.var,
                    "MSE" = MLE.MSE)
   post.mean.vals <- list("results" = post.mean.res, 
                          "mean" = post.mean.mean,
-                         "variance" = post.mean.var, 
-                         "MSE" = post.mean.MSE)
+                     "variance" = post.mean.var, 
+                     "MSE" = post.mean.MSE)
   return(c(MLE.vals[[to.return]], 
            post.mean.vals[[to.return]]))
 }
@@ -110,11 +56,11 @@ makeLists <- function(true.theta,
   MLE.vals <- sapply(list.of.vals, "[[", 1)
   post.mean.vals <- sapply(list.of.vals, "[[", 2)
   matplot(variance, 
-          cbind(MLE.vals, post.mean.vals),
-          type = "l",
-          lty = c(1,2),
-          main = paste0("Plot of ", to.return),
-          ylab = to.return)
+       cbind(MLE.vals, post.mean.vals),
+       type = "l",
+       lty = c(1,2),
+       main = paste0("Plot of ", to.return),
+       ylab = to.return)
 }
 
 makeLists(true.theta, trails, variance, "MSE")
