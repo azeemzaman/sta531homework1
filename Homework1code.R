@@ -52,6 +52,45 @@ matplot(theta.seq,
         cbind(norm.den,trun.norm.den), 
         type = "l")
 dev.off()
+
+
+# Problem 4 code#
+library(MCMCpack)
+ns <- c(1,10, 10^2, 10^3, 10^4, 10^5, 10^6, 10^7)
+list.of.draws <- lapply(ns, function(x) {rexp(x, rate = 1)})
+post.a <- 1+ns
+post.b <- 1+sapply(list.of.draws, sum)
+post.params <- cbind(post.a, post.b)
+support.seq <- seq(from = 0,
+                   to = 2,
+                   length.out = 1000)
+mat.of.den <- apply(post.params, 1, function(x)
+  {dgamma(support.seq, shape = x[1], rate = x[2])})
+matplot(support.seq, mat.of.den, type = "l")
+# Y = X^2
+psi.den <- function(x, shape, rate){
+  return((1/2)*x^(-3/2)*dgamma(sqrt(x), shape = shape, rate = rate))
+}
+mat.of.sqr.den <- apply(post.params, 1, function(x)
+  {psi.den(support.seq, shape = x[1], rate = x[2])})
+matplot(support.seq, mat.of.sqr.den[,-1], type = "l")
+
+mean.val <- function(theta){
+  return((1/2)*(theta+1))
+}
+thetas <- apply(post.params, 1, function(x)
+  {rgamma(1000, shape = x[1], rate = x[2])})
+
+mean.val.theta <- apply(thetas, 1:2, mean.val)
+means <- apply(thetas, 2, mean)
+pdf(file = "meanval.pdf")
+plot(log(ns), 
+     means,
+     type = "l",
+     xlab = expression(log(n)),
+     ylab = expression(bar(theta)[0]))
+abline(h = 1, col = "red")
+dev.off()
 # Problem 9 code#
 
 # MLE function
