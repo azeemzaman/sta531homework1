@@ -104,8 +104,9 @@ MLE <- function(y){
   }
 }
 
-postMean <- function(y){
-  post.mean <- y + (dnorm(y)-dnorm(1-y))/(pnorm(1-y)-pnorm(-y))
+postMean <- function(y, variance){
+  sd <- sqrt(variance)
+  post.mean <- y + sd*(dnorm(-y/sd)-dnorm((1-y)/sd))/(pnorm((1-y)/sd)-pnorm(-y/sd))
   return(post.mean)
 }
 
@@ -120,7 +121,8 @@ computeMSE <- function(true.theta,
                   mean = true.theta,
                   sd = sqrt(variance))
   MLE.res <- sapply(thetas, MLE)
-  post.mean.res <- sapply(thetas, postMean)
+  post.mean.res <- sapply(thetas, function(x)
+    {postMean(x, variance)})
   MLE.mean <- mean(MLE.res)
   post.mean.mean <- mean(post.mean.res)
   MLE.var <- var(MLE.res)
@@ -152,13 +154,22 @@ makeLists <- function(true.theta,
           cbind(MLE.vals, post.mean.vals),
           type = "l",
           lty = c(1,2),
-          main = paste0("Plot of ", to.return),
+          main = paste0(to.return, "; True mean: ", true.theta),
           ylab = to.return)
+  legend("topleft",
+         c("MLE", "Post. Mean"),
+         lty = c(1,2),
+         col = c("black", "red"))
 }
-
-makeLists(true.theta, trails, variance, "MSE")
+pdf(file = "mse5.pdf")
+makeLists(.5, trails, variance, "MSE")
+dev.off()
+pdf(file = "mse1.pdf")
 makeLists(1, trails, variance, "MSE")
+dev.off()
+pdf(file = "mse0.pdf")
 makeLists(0, trails, variance, "MSE")
+dev.off()
 makeLists(true.theta, trails, variance, "variance")
 
 # Problem 15

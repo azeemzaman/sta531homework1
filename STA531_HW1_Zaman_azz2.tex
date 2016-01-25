@@ -116,4 +116,28 @@ The posterior $p(\theta|y)$ satisfies
 p(\theta|y) &\propto p(y|\theta)p(\theta) \\
 &\propto 1_{0,1}\exp\left(-\frac{(y-\theta)^{2}}{2\sigma^{2}}\right).
 \end{align*}
+This is the kernel of a truncated normal, so $\theta|y \sim N(y,\sigma^2, 0, 1)$, where $0$ and $1$ represent the truncation points for the normal distribution.  The mean of this distribution is
+\begin{align}\label{truncmean}
+ E(\theta|y,\sigma^2,0,1) = y + \sigma\left(\frac{\phi\left(\frac{-y}{\sigma}\right)-\phi\left(\frac{1-y}{\sigma}\right)}{\Phi\left(\frac{1-y}{\sigma}\right)-\Phi\left(\frac{-y}{\sigma}\right)}\right).
+\end{align}
+\subsection{Computing the MSE}
+Computing the expectation for the M.L.E. (needed to compute the bias) is possible.  If $\theta_0$ is the true value of $\theta$, we have
+\begin{align*}
+ E(\htheta|y) &= \int_{-\infty}^\infty \htheta(y)f(y|\theta_0, \sigma^2) \, dy \\
+ &= \int_0^1 yf(y|\theta_0, \sigma^2) \, dy + \int_1^\infty f(y|\theta_0, \sigma^2) \, dy.
+\end{align*}
+This can be evaluated without too much difficulty.  The expectation for the posterior mean is much harder; the expectation of the second term in \ref{truncmean} is much harder.  Thankfully, we do not have to evlaute the expectation.  Instead, we can pick a true value $\theta_0$ and simulate draws for $y$.  With these draws we can compute the sample mean, which is an unbiased estimator of the expectation.  Furthermore, we can compute an unbiased sample variance.  With these quantities (sample mean, sample variance, and $\theta_0$), we can estimate the MSE.   The plots in Figure \ref{mseplots} show that by the time the variance is equal to 1, the MSE for the posterior mean is lower than the MSE for the M.L.E. estimator.  
+
+\begin{figure}
+ \centering
+ \includegraphics[width = .5\textwidth]{mse0.pdf}
+ \includegraphics[width = .5\textwidth]{mse5.pdf}
+ \includegraphics[width = .5\textwidth]{mse1.pdf}
+ \caption{\label{mseplots} Comparison of the MSE for the M.L.E. estimator and the posterior mean at various variances.}
+\end{figure}
+
+
+\section{Exercise 13}
+\subsection{Weak, uniform, or improper priors}
+Even if one is using a non-informative prior, there are still some advantages to Bayesian approaches.  For example, Bayesian results are often intuitevly appealing.  Frequentist confidence intervals are notoriously difficult to interpret, and many people misinterpret these intervals.  Bayesian credible intervals have a much more intuitve interpretation.  If $\theta$ is some unknown parameter, we can construct some region $A$ such that the probability that $\theta \in A$ is 95\%.  In a Frequentist setting we construct some random interval with the property that if we computed this interval many times we would expect 95\% of the constructed intervals to contain the true value $\theta$.  Once we construct this interval, however, it either contains the true $\theta$ or it does not (and we do not know whether it is contained).  If the results of our analysis are going to be shared with non-statisticians, it may be simpler for them to understand 
 \end{document}
