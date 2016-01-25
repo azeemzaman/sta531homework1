@@ -3,6 +3,8 @@
 \usepackage{amsmath, amsthm}
 \usepackage{graphicx}
 \newcommand{\by}{\mathbf{y}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\htheta}{\hat{\theta}}
 %opening
 \title{Sta 531 Homework 1}
 \author{Azeem Zaman, NetID: azz2}
@@ -38,10 +40,80 @@ where $\hat{\theta}$ is the posterior mode (found above) and $I(\theta)$ is the 
  I(\theta) = -\lambda''(\theta|\by).
 \end{align*}
 Thus in our approximation $\mu = -1.603$ and $\sigma^2 = .693$.  
+\begin{figure}
 \centering
 \includegraphics[width = \textwidth]{normapprox.pdf}
-
+\end{figure}
 
 \section{Exercise 4}
+\subsection{Proof that $p(\phi|\bx)$ is asymptotically normal}
+The proof of this fact relies on the delta method. From lecture we know that $p(\theta|\bx) \overset{D}{\rightarrow} N(\hat{\theta}, I(\hat{\theta};\bx)^{-1})$, where $\hat{\theta}$ is the posterior mode.  Let $\sigma^{2}=[I(\hat{\theta};\bx)/n]^{-1}$, so we can write $\theta_{n} \overset{A}{\sim} N(\hat{\theta}, \sigma^{2}/n)$, where $\theta_{n}$ is a random variable distributed as $p(\theta|\bx)$ and $n$ is the length of the vector of observations, $\bx$.   The continuous mapping theorem states allows us to conclude that $\sqrt{n}(\theta_{n}-\hat{\theta}) \overset{D}{\rightarrow} N(0, \sigma^{2})$.  As we are assuming that $\phi$ is one-to-one, continuous, and smooth, we can in particular conclude that the first derivative exists and is not zero (otherwise the function would not be one-to-one).  This allows us to apply the Delta method, which tells us that $\sqrt{n}(\phi(\theta_{n})-\phi(\hat{\theta})) \overset{D}{\rightarrow} N(0, \sigma^{2}\phi'(\hat{\theta})^{2})$.  Applying the continuous mapping theorem again reveals that
+\begin{align*}
+\phi(\theta_{n}) \overset{A}{\sim} N(\phi(\hat{\theta}), \sigma^{2}\phi'(\hat{\theta})^{2}n^{-1}).
+\end{align*}
+Therefore the random variable $\phi(\theta_{n})$ is asymptotically normal with mean $\phi(\hat{\theta})$ and variance $I(\hat{\theta};\bx)\phi(\hat{\theta})^{2}$.  
 
+\subsection{Intuition for the result}
+If $\phi$ were a linear function, the result would be clear.  As we are not requiring $\phi$ to be linear, and non-linear transformations of normally distributed random variables are no longer normal, the result is somewhat surprising.  The function $\phi$ satisfies the conditions of the mean value theorem, so we know that there exists a point $\theta_{0}$ such that
+\begin{align*}
+\frac{\phi(\theta_{n})-\phi(\hat{\theta})}{\theta_{n} - \hat{\theta}} &= \phi'(\theta_{0}) \\
+\phi(\theta_{n})-\phi(\hat{\theta}) &= \phi'(\theta_{0})\left(\theta_{n} - \hat{\theta}\right) \\
+\phi(\theta_{n}) &= \phi(\hat{\theta}) + \phi'(\theta_{0})\left(\theta_{n} - \hat{\theta}\right). \\
+\end{align*}
+So the mean value shows that there exists a linear approximation for $\phi$.  We can rewrite this as
+\begin{align*}
+\sqrt{n}\left(\phi(\theta_{n})-\phi(\hat{\theta})\right) &= \sqrt{n}\phi'(\theta_{0})\left(\theta_{n} - \hat{\theta}\right).
+\end{align*}
+The problem here is the point $\theta_{0}$, which can take any value between $\theta_{n}$ and $\hat{\theta}$; as $n$ increases the value of $\theta_{0}$ could change erratically.  This turns out not to be a problem because $\theta_{n} \to \hat{\theta}$ as $n \to \infty$, which forces $\theta_{0} \to \hat{\theta}$.  So we have
+\begin{align*}
+\sqrt{n}\left(\phi(\theta_{n})-\phi(\hat{\theta})\right) &= \sqrt{n}\phi'(\theta_{0})\left(\theta_{n} - \hat{\theta}\right) \\
+&\to  \sqrt{n}\phi'(\hat{\theta})\left(\theta_{n} - \hat{\theta}\right) \\
+&\to N(0, \sigma^{2}\phi'(\hat{\theta})^{2})
+\end{align*}
+as $n \to \infty$ (we know from other results that $\sqrt{n}\left(\theta_{n} - \hat{\theta}\right) \to N(0, \sigma^{2})$).  The result can thus be understood intuitively as follows:  even if $\phi$ is non-linear, as $n \to \infty$ a good linear approximation will appear, which can be used to show that the limiting distribution should also be normal.  
+
+\subsection{Empirical Demonstration}
+Recall that $\theta_{0}$ is a value that satisfying
+\begin{align*}
+\frac{\phi(\theta_{n})-\phi(\hat{\theta})}{\theta_{n} - \hat{\theta}} &= \phi'(\theta_{0}),
+\end{align*}
+which must exist by the mean value theorem.  We have argued that when $n$ is large we can get a linear approximation for $\phi$ because $\phi'(\theta_{0}) \approx \phi'(\hat{\theta})$.  To see this concretely, let $\phi(\theta_{n})=\theta_{n}^{2}$ and consider the model
+\begin{align*}
+\theta &\sim Exp(1) \\
+X_{1}, \ldots, X_{n}|\theta &\sim Exp(\theta).
+\end{align*}
+This results in the posterior $Gamma(1+n,1+\sum_{i=1}^{n}x_{i})$.  Suppose the true value of $\theta$ is 1, so we are sampling from $Exp(1)$.  For various $n$ we can sample from this distribution and calculate a posterior.  We can then sample, for example, 1000 values for $\theta_{n}$ from these posteriors.  For each of these $\theta_{n}$ we can compute $\theta_{0}$:
+\begin{align*}
+\phi'(\theta_{0}) &=  \frac{\phi(\theta_{n})-\phi(\hat{\theta})}{\theta_{n} - \hat{\theta}} \\
+2\theta_{0} &= \frac{\theta_{n}^{2}-1}{\theta_{n}-1} \\
+\theta_{0} &= \frac{\theta_{n}+1}{2}.
+\end{align*}
+For our approximation to be good, we need $\theta_{0} \approx 1$.  By averaging the values for $\theta_{0}$ we can get an idea how good our approximation is at various values of $n$.  The plot in Figure \ref{meanval} shows that we indeed have $\theta_{0} \approx 1$ when $n$ is even moderately large.
+\begin{figure}
+\centering
+\includegraphics[width = .75\textwidth]{meanval.pdf}
+\caption{\label{meanval} The average $\theta_{0}$ for 1000 draws of $\theta_{n}$ at various $n$}
+\end{figure}
+
+\section{Exercise 9}
+\subsection{The restricted M.L.E.}
+Let $f(y|\theta)$ be likelihood function and $\lambda(y|\theta)$ be the log likelihood.  We have
+\begin{align*}
+\lambda(y|\theta) &= \log{c} - \frac{1}{2\sigma^{2}}(y - \theta)^{2}, \\
+\lambda'(y|\theta) &= \frac{1}{\sigma^{2}}(y - \theta), \\
+\lambda'(y|\theta) &= -\frac{1}{\sigma^{2}}.
+\end{align*}
+This means that $\htheta = y$ is the M.L.E.  We are restricting to the range $[0,1]$.  If $y<0$, then $\lambda'(y|\theta)$ is negative in $\theta$, so want to pick the smallest possible value of $\theta$, which is $\htheta = 0$.  Conversely, if $y > 1$, then $\lambda'(y|\theta)$ is positive on $[0,1]$, so we want to pick the largest possible value of $\theta$, which is $\htheta = 1$.  Therefore the M.L.E. is
+\begin{align*}
+\htheta(y) &= \begin{cases}
+y & y \in [0,1] \\
+0 & y < 0 \\
+1 & y > 1. \end{cases}
+\end{align*}
+\subsection{The posterior mean}
+The posterior $p(\theta|y)$ satisfies
+\begin{align*}
+p(\theta|y) &\propto p(y|\theta)p(\theta) \\
+&\propto 1_{0,1}\exp\left(-\frac{(y-\theta)^{2}}{2\sigma^{2}}\right).
+\end{align*}
 \end{document}
