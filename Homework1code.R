@@ -18,7 +18,18 @@ d2.log.f <- function(y, theta){
 d2.log.g <- function(y.vec, theta){
   return(2*sum(sapply(y.vec, function(y) {d2.log.f(y,theta)})))
 }
+
 y.vec <- c(-2,-1,0,1.5,2.5)
+g(pos.mod)
+g(0)
+g(1)
+mle.mean <- g(0)
+mle.var <- -1/d2.log.g(y.vec, 0)
+mle.norm.approx <- dtruncnorm(theta.seq,
+                              a = 0,
+                              b = 1,
+                              mean = mle.mean,
+                              sd = sqrt(mle.var))
 nor.var <- -1/d2.log.g(y.vec, pos.mod)
 # dist is N(pos.mod, nor.var)
 
@@ -27,6 +38,13 @@ seq.length = 10000
 theta.seq <- seq(from = 0,
                  to = 1,
                  length.out = seq.length)
+pdf(file = "mapplot.pdf")
+plot(theta.seq, 
+     sapply(theta.seq, g),
+     type = "l",
+     xlab = expression(theta),
+     ylab = "Score function")
+dev.off()
 cauchy.f <- function(y, theta){
   return((1+(y-theta)^2)^(-1))
 }
@@ -50,10 +68,26 @@ trun.norm.den <- dtruncnorm(theta.seq,
 pdf(file = "normapprox.pdf")
 matplot(theta.seq, 
         cbind(norm.den,trun.norm.den), 
-        type = "l")
+        type = "l",
+        main = "MLE normal approximation",
+        xlab = expression(theta),
+        ylab = expression(density))
+legend("topright", c("Density", "Normal Approx."),
+       lty = c(1,2),
+       col = c("black", "red"))
 dev.off()
 
-
+pdf(file = "mapapprox.pdf")
+matplot(theta.seq,
+        cbind(norm.den, mle.norm.approx),
+        type = "l",
+        main = "MAP normal approximation",
+        xlab = expression(theta),
+        ylab = "denisty")
+legend("topright", c("Density", "Normal Approx."),
+       lty = c(1,2),
+       col = c("black", "red"))
+dev.off()
 # Problem 4 code#
 library(MCMCpack)
 ns <- c(1,10, 10^2, 10^3, 10^4, 10^5, 10^6, 10^7)
