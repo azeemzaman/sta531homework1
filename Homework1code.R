@@ -9,8 +9,8 @@ g <- function(theta){
   return(sum(sapply(y.vec, function(y) {f(y,theta)})))
 }
 
-pos.mod <- BBoptim(1, g)$value
-
+# pos.mod <- BBoptim(-1, g)$value
+pos.mod <- uniroot(g, c(-1,1))$root
 d2.log.f <- function(y, theta){
   return(((y-theta)^2-1)/((y-theta)^2+1)^2)
 }
@@ -28,7 +28,7 @@ theta.seq <- seq(from = 0,
                  to = 1,
                  length.out = seq.length)
 cauchy.f <- function(y, theta){
-  return((1+(y-theta)^2)^(-2))
+  return((1+(y-theta)^2)^(-1))
 }
 unnorm.post <- function(y.vec, theta){
   return(prod(sapply(y.vec, function(y) {cauchy.f(y, theta)})))
@@ -186,13 +186,12 @@ computeCoverage <- function(cover, true.theta){
   val2 <- (5/4)*(true.theta - sqrt(5)*c/2)
   p1 <- 1-pnorm(val1, mean = true.theta, sd = 1)
   p2 <- pnorm(val2, mean = true.theta, sd = 1)
-  prob <- p1+p2
+  prob <- 1-(p1+p2)
   return(prob)
 }
 theta.seq <- seq(from = -16, to = 16, length.out = 10000)
 coverage <- sapply(theta.seq, function(x) {
   computeCoverage(.5, x)})
-plot(theta.seq, coverage, type = "l")
 hist(coverage)
 computeCoverage(.5, 2)
 
@@ -201,7 +200,7 @@ computeFreq <- function(cover, true.theta){
   val1 <- true.theta+c
   val2 <- true.theta-c
   p1 <- 1- pnorm(val1, mean = true.theta, sd = 1)
-  p2 <- pnoom(val2, mean = true.theta, sd = 1)
+  p2 <- pnorm(val2, mean = true.theta, sd = 1)
   prob <- p1+p2
   return(prob)
 }
@@ -209,3 +208,12 @@ freq.cover <- sapply(theta.seq, function(x) {
   computeFreq(.5, x)
 })
 lines(theta.seq, freq.cover)
+
+pdf(file = "coverage.pdf")
+matplot(theta.seq, 
+        cbind(coverage, freq.cover), 
+        type = "l",
+        main = "Bayesian and Frequentist Coverage",
+        xlab = "True mean",
+        ylab = "Coverage")
+dev.off()

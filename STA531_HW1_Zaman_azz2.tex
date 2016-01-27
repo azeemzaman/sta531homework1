@@ -139,5 +139,65 @@ This can be evaluated without too much difficulty.  The expectation for the post
 
 \section{Exercise 13}
 \subsection{Weak, uniform, or improper priors}
-Even if one is using a non-informative prior, there are still some advantages to Bayesian approaches.  For example, Bayesian results are often intuitevly appealing.  Frequentist confidence intervals are notoriously difficult to interpret, and many people misinterpret these intervals.  Bayesian credible intervals have a much more intuitve interpretation.  If $\theta$ is some unknown parameter, we can construct some region $A$ such that the probability that $\theta \in A$ is 95\%.  In a Frequentist setting we construct some random interval with the property that if we computed this interval many times we would expect 95\% of the constructed intervals to contain the true value $\theta$.  Once we construct this interval, however, it either contains the true $\theta$ or it does not (and we do not know whether it is contained).  If the results of our analysis are going to be shared with non-statisticians, it may be simpler for them to understand 
+Even if one is using a non-informative prior, there are still some advantages to Bayesian approaches.  For example, Bayesian results are often intuitevly appealing.  Frequentist confidence intervals are notoriously difficult to interpret, and many people misinterpret these intervals.  Bayesian credible intervals have a much more intuitve interpretation.  If $\theta$ is some unknown parameter, we can construct some region $A$ such that the probability that $\theta \in A$ is 95\%.  In a Frequentist setting we construct some random interval with the property that if we computed this interval many times we would expect 95\% of the constructed intervals to contain the true value $\theta$.  Once we construct this interval, however, it either contains the true $\theta$ or it does not (and we do not know whether it is contained).  If the results of our analysis are going to be shared with non-statisticians, it may be simpler for them to understand.
+
+Bayesian credible intervals have another advantage:  they only give positive probability to parameter values in the parameter space.  A confidence interval, conversely, can include impossible values.  This is not just a theoretical concern, it commonly happens if the unknown parameter is a Bernoulli probability $p$ that is close to 0 or 1.  
+
+\subsection{A strong prior}
+Ehrenberg's objection to a strong prior (``why collect more data?'') is rather absurd. Even if you believe you already have a good model, why \emph{not} collect more data?  New data could be used to check an existing model.  In addition, it is easy to update a prior to reflect new information, so more data further improves a model.
+
+A better objection might be: can you ever justify a strong prior?  Is there ever a situation where one can justify the use of a strong prior?  There probably is such a situation, but they are rare.  Any Bayesian will tell you that picking a prior is hard.  
+
+\subsection{The in between cases}
+The main strength of Bayesian statistics is the ability to incorporate prior beliefs into a model.  Most of the time our prior beliefs are very general and cannot be used to create a ``strong'' prior.  Instead, we select a prior that has some shape (i.e. not uniform) and attempts to reflect our beliefs.  
+
+\section{Exercise 15}
+\subsection{Part a}
+Suppose $c(\gamma)$ is a 50\% credible region in the posterior.  Let $1_{c(\gamma)}$ be the indicator function for this region.  We have $E[1_{c(\gamma)}|y]=0.5$, so the Law of Total Expecation (Iterated Expecation) says
+\begin{align*}
+0.5 &= E(0.5) \\
+&= E\left(E[1_{c(\gamma)}|y]\right) \\
+&= E[1_{c(\gamma)}].
+\end{align*}
+In short, $E(1_{c(\gamma)})=0.5$, which means that the probability that $\theta \in c(\gamma)$ is 50\%.  Note that this probability is no longer conditional on $y$.  So since we are drawing a true $\theta_{0}$ from the prior, and there is a 50\% chance that $\theta$ drawn from the prior is in the set $c(\gamma)$, there is a 50\% chance that the true that $\theta_{0}$ will be contained in the set $c(\gamma)$.  
+
+\subsection{Part b}
+The posterior satisfies
+\begin{align*}
+p(\theta|y) &\propto p(\theta)p(y|\theta) \\
+&\propto \exp\left(-\frac{1}{2(4)}\theta^{2}\right)\exp\left(-\frac{1}{2}(y - \theta)^{2}\right) \\
+&\propto \exp\left(-\frac{1}{2(4)}\theta^{2}-\frac{1}{2}\left(y^{2}-2y\theta + \theta^{2}\right)\right) \\
+&\propto \exp\left(-\frac{1}{2}\left((5/4)\theta^{2}-2y\theta\right)\right) \\
+&\propto \exp\left(-\frac{1}{2(4/5)}\left(\theta^{2}-2(4/5)y\theta\right)\right) \\
+&\propto \exp\left(-\frac{1}{2(4/5)}\left(\theta^{2}-2(4/5)y\theta + ((4/5)^{2}y^{2} - (4/5)^{2}y^{2)}\right)\right) \\
+&\propto \exp\left(-\frac{1}{2(4/5)}\left(\theta^{2}-2(4/5)y\theta + (4/5)^{2}y^{2}\right)\right) \\
+&\propto \exp\left(-\frac{1}{2(4/5)}\left(\theta - (4/5)y\right)^{2}\right), \\
+\end{align*}
+which is the kernel of a normal distribution with mean $4y/5$ and variance $4/5$, so $\theta|y \sim N(4y/5, 4/5)$.  If we generically let $\mu(y) = 4y/5$ and $\sigma = \sqrt{4/5}$ then $(\theta-\mu(y))/\sigma$ has a standard normal distribution (conditional on $y$).  So if we want to construct a $\gamma$\% posterior interval, let $c(\gamma) = \Phi((1+\gamma)/2)$.  This gives
+\begin{align*}
+P\left(\frac{\theta-\mu(y)}{\sigma} > c(\gamma)|y\right) &= \frac{1-\gamma}{2} \\
+P(\left(\mu(y) + c(\gamma)\sigma < \theta|y\right) &= \frac{1-\gamma}{2}.
+\end{align*}
+Using the symmetry of the normal we can conclude that $C(y, \gamma) = (\mu(y)-c(\gamma)\sigma,\mu(y)+c(\gamma)\sigma)$ is a $\gamma$\% confidence interval.  Suppose $\theta_{0}$ is the true population mean, so $Y \sim N(\theta_{0},1)$.  We can calculate the probability that $\theta_{0} \in C(y, \gamma)$.  To do this, it is easier to calculate the probability that $\theta_{0} \notin c(\gamma)$.  This can occur in two ways.  First, we could have $\theta_{0} < \mu(y)-c(\gamma)\sigma$, which occurs with probability 
+\begin{align*}
+p_{1} &= P(\theta_{0}<\mu(y)-c(\gamma)\sigma) \\
+&= P(\theta_{0}<4y/5-c(\gamma)\sigma) \\
+&= P\left(\frac{5(\theta_{0}+c(\gamma)\sigma)}{4} < y\right).
+\end{align*}
+As we know that $Y \sim N(\theta_{0},1)$, we can compute this probability exactly ($\theta_{0}, c(\gamma),$ and $\sigma$ are all known).  We also need to compute the probability that $\theta_{0} > \mu(y) + c(\gamma)\sigma$ (our interval underestimates the true value).  This is
+\begin{align*}
+p_{2} &= P(\theta_{0}>\mu(y)+c(\gamma)\sigma) \\
+&= P(\theta_{0}>4y/5-c(\gamma)\sigma) \\
+&= P\left(\frac{5(\theta_{0}-c(\gamma)\sigma)}{4} > y\right).
+\end{align*}
+The coverage is then $1 - (p_{1}+p_{2})$.  We have $\theta_{0}=1$ and $\gamma = .5$, so we can compute the coverage to be 63.9\%.  
+
+\subsection{Part c}
+Using the framework outlined above, we can calculate the coverage for a range of $\theta_{0}$ values.  We can also plot the frequentist coverage, which is always the specified value (50\%).  This is presented in Figure \ref{cover}.  
+\begin{figure}
+\centering
+\includegraphics[width = \textwidth]{coverage.pdf}
+\caption{\label{cover} A comparison of Bayesian 50\% interval coverage and Frequentist 50\% interval coverage.}
+\end{figure}
+Note that for values of $\theta_{0}$ that are close to the prior mean ($\theta_{0}=0$), the Bayesian coverage is higher than Frequentist coverage.  As $\theta_{0}$ moves away from the prior mean, the Bayesian coverage rapidly approaches zero.  We see that if our prior beliefs are roughly correct, Bayesian coverage will be superior to frequentist coverage.  
 \end{document}
